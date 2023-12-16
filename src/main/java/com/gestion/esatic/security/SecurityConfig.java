@@ -1,5 +1,7 @@
 package com.gestion.esatic.security;
 
+import com.gestion.esatic.data.UserRepository;
+import com.gestion.esatic.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +15,15 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
+
+    private final JpaUserDetailsService myUserDetailsService;
+
+    public SecurityConfig(JpaUserDetailsService myUserDetailsService) {
+        this.myUserDetailsService = myUserDetailsService;
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -29,19 +39,22 @@ public class SecurityConfig {
                                 .requestMatchers("/static/**", "/images/**","/api/**").permitAll()
                                 .anyRequest().authenticated()
 
+
                         //.requestMatchers(mvc.pattern("/design/")).permitAll()
                         //.requestMatchers(RegexRequestMatcher.regexMatcher("/design")).permitAll()
 
 
 
                 )
+                .userDetailsService(myUserDetailsService)
+                //.headers(headers -> headers.frameOptions().sameOrigin())
                 //.httpBasic(Customizer.withDefaults())
-                //formLogin(Customizer.withDefaults());
-                .formLogin(form -> form
+                .formLogin(Customizer.withDefaults());
+                /*.formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard")
+                        .defaultSuccessUrl("/home")
                         .permitAll()
-                );
+                );*/
 
 
         return http.build();
